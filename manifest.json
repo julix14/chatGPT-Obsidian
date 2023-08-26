@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "ChatGPT-for-Obsidian",
+	"name": "ChatGPT for Obsidian",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "This is a sample plugin for Obsidian. This plugin demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
+	"description": "Chat with GPT-4 in Obsidian",
+	"author": "julix14",
+	"authorUrl": "https://github.com/julix14",
 	"fundingUrl": "https://obsidian.md/pricing",
 	"isDesktopOnly": false
 }
