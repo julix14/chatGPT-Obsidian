@@ -5,7 +5,6 @@ import {
 	Plugin,
 	PluginSettingTab,
 	Setting,
-	TFile,
 } from "obsidian";
 import OpenAI from "openai";
 
