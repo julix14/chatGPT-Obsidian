@@ -13,10 +13,12 @@ import OpenAI from "openai";
 
 interface MyPluginSettings {
 	apiKey: string;
+	statusName: string;
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
 	apiKey: "",
+	statusName: "Definition by AI",
 };
 
 export default class MyPlugin extends Plugin {
@@ -31,24 +33,62 @@ export default class MyPlugin extends Plugin {
 			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				if (view) {
 					const filename = view.file?.basename;
-					const metadata = this.app.metadataCache.getFileCache(
-						view.file || new TFile()
-					)?.frontmatter;
 
-					const tags = metadata?.tags.split(",") || [];
+					const matches = editor
+						.getValue()
+						.match(/---(.*?)---/gs) || [""];
+					const lines = matches[0]
+						.split("\n")
+						.filter((line: string) => !line.startsWith("---"));
+
+					const metadata: { [key: string]: string } = {};
+					for (const line of lines) {
+						const [key, value] = line
+							.split(":")
+							.map((part) => part.trim());
+						metadata[key as string] = value;
+					}
+
+					const tags = metadata["tags"];
+					const status = this.settings.statusName;
+
+					let metadataString = "---\n";
+					let statusSet = metadata["status"] !== undefined;
+
+					if (typeof metadata === "object") {
+						for (const [key, value] of Object.entries(metadata)) {
+							if (typeof value !== "object") {
+								if (key === "status" && statusSet === false) {
+									statusSet = true;
+									metadataString += `${key}: ${status}\n`;
+								}
+								metadataString += `${key}: ${value}\n`;
+							}
+						}
+					}
+					if (!statusSet) {
+						metadataString += `status: ${status}\n`;
+					}
+					metadataString += "---\n";
 
 					if (filename) {
 						const originalText = editor.getValue();
 
-						editor.setValue(originalText + "Loading...");
-
+						let processedText = originalText.replace(
+							/---.*?---/gs,
+							""
+						);
 						const definition = await getDefinition(
 							filename,
 							tags,
 							this.settings.apiKey
 						);
 
-						editor.setValue(originalText + definition);
+						processedText = metadataString + processedText;
+
+						editor.setValue(originalText + "Loading...");
+
+						editor.setValue(processedText + definition);
 					}
 				}
 			},
@@ -95,7 +135,19 @@ class SettingsTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.apiKey)
 					.onChange(async (value) => {
 						this.plugin.settings.apiKey = value;
-						console.log("Secret: " + value);
+
+						await this.plugin.saveSettings();
+					})
+			);
+		new Setting(containerEl)
+			.setName("Status Name")
+			.setDesc("Status name for generated definitions")
+			.addText((text) =>
+				text
+					.setPlaceholder("Enter your status name")
+					.setValue(this.plugin.settings.statusName)
+					.onChange(async (value) => {
+						this.plugin.settings.statusName = value;
 
 						await this.plugin.saveSettings();
 					})
