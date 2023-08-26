@@ -32,8 +32,8 @@ export default class MyPlugin extends Plugin {
 		statusBarItemEl.setText("Status Bar Text");
 
 		this.addCommand({
-			id: "sample-editor-command",
-			name: "Sample editor command",
+			id: "generate-definition-command",
+			name: "Generate Definition",
 			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				if (view) {
 					const filename = view.file?.basename;
