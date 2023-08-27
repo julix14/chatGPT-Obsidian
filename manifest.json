@@ -1,6 +1,6 @@
 {
-	"id": "ChatGPT-for-Obsidian",
-	"name": "ChatGPT for Obsidian",
+	"id": "ChatGPT-Definitions-for-Obsidian",
+	"name": "ChatGPT Definition for Obsidian",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "Chat with GPT-4 in Obsidian",
