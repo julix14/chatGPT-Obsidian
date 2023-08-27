@@ -1,11 +1,10 @@
 {
-	"id": "ChatGPT-Definitions-for-Obsidian",
-	"name": "ChatGPT Definition for Obsidian",
+	"id": "ChatGPTDefinitions",
+	"name": "ChatGPT Definition",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Chat with GPT-4 in Obsidian",
+	"description": "Let your AI assistant ChatGPT define words and concepts for you.",
 	"author": "julix14",
 	"authorUrl": "https://github.com/julix14",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+	"isDesktopOnly": true
 }
