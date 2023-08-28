@@ -5,8 +5,10 @@ import {
 	Plugin,
 	PluginSettingTab,
 	Setting,
+	TFile,
 } from "obsidian";
 import OpenAI from "openai";
+import { stringify } from "querystring";
 
 // Remember to rename these classes and interfaces!
 
@@ -27,67 +29,42 @@ export default class MyPlugin extends Plugin {
 		await this.loadSettings();
 
 		this.addCommand({
-			id: "generate-definition-command",
+			id: "generate-definition",
 			name: "Generate Definition",
 			editorCallback: async (editor: Editor, view: MarkdownView) => {
-				if (view) {
+				if (view.file) {
 					const filename = view.file?.basename;
 
-					const matches = editor
-						.getValue()
-						.match(/---(.*?)---/gs) || [""];
-					const lines = matches[0]
-						.split("\n")
-						.filter((line: string) => !line.startsWith("---"));
+					let oldFrontmatter =
+						this.app.metadataCache.getFileCache(view.file)
+							?.frontmatter || {};
 
-					const metadata: { [key: string]: string } = {};
-					for (const line of lines) {
-						const [key, value] = line
-							.split(":")
-							.map((part) => part.trim());
-						metadata[key as string] = value;
-					}
+					let processedFrontmatter;
 
-					const tags = metadata["tags"];
-					const status = this.settings.statusName;
-
-					let metadataString = "---\n";
-					let statusSet = metadata["status"] !== undefined;
-
-					if (typeof metadata === "object") {
-						for (const [key, value] of Object.entries(metadata)) {
-							if (typeof value !== "object") {
-								if (key === "status" && statusSet === false) {
-									statusSet = true;
-									metadataString += `${key}: ${status}\n`;
-								}
-								metadataString += `${key}: ${value}\n`;
-							}
+					this.app.fileManager.processFrontMatter(
+						view.file,
+						(frontmatter) => {
+							frontmatter["status"] = this.settings.statusName;
+							processedFrontmatter = frontmatter;
 						}
-					}
-					if (!statusSet) {
-						metadataString += `status: ${status}\n`;
-					}
-					metadataString += "---\n";
+					);
 
 					if (filename) {
 						const originalText = editor.getValue();
 
-						let processedText = originalText.replace(
-							/---.*?---/gs,
-							""
-						);
+						editor.setValue(originalText + "Loading...");
 						const definition = await getDefinition(
 							filename,
-							tags,
+							oldFrontmatter?.tags,
 							this.settings.apiKey
 						);
+						const textWithDefinition = originalText.includes(
+							"Loading..."
+						)
+							? originalText.replace("Loading...", definition)
+							: originalText + definition;
 
-						processedText = metadataString + processedText;
-
-						editor.setValue(originalText + "Loading...");
-
-						editor.setValue(processedText + definition);
+						editor.setValue(textWithDefinition);
 					}
 				}
 			},
@@ -139,7 +116,7 @@ class SettingsTab extends PluginSettingTab {
 					})
 			);
 		new Setting(containerEl)
-			.setName("Status Name")
+			.setName("Status name")
 			.setDesc("Status name for generated definitions")
 			.addText((text) =>
 				text
