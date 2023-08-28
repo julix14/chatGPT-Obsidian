@@ -27,7 +27,7 @@ export default class MyPlugin extends Plugin {
 		await this.loadSettings();
 
 		this.addCommand({
-			id: "generate-definition-command",
+			id: "generate-definition",
 			name: "Generate Definition",
 			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				if (view) {
