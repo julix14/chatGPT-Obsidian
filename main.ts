@@ -8,22 +8,19 @@ import {
 	TFile,
 } from "obsidian";
 import OpenAI from "openai";
-import { stringify } from "querystring";
 
-// Remember to rename these classes and interfaces!
-
-interface MyPluginSettings {
+interface PluginSettings {
 	apiKey: string;
 	statusName: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: PluginSettings = {
 	apiKey: "",
 	statusName: "Definition by AI",
 };
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+export default class ChatGptDefinitions extends Plugin {
+	settings: PluginSettings;
 
 	async onload() {
 		await this.loadSettings();
@@ -90,9 +87,9 @@ export default class MyPlugin extends Plugin {
 }
 
 class SettingsTab extends PluginSettingTab {
-	plugin: MyPlugin;
+	plugin: ChatGptDefinitions;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: ChatGptDefinitions) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
