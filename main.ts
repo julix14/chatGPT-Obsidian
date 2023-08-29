@@ -38,14 +38,6 @@ export default class ChatGptDefinitions extends Plugin {
 
 					let processedFrontmatter;
 
-					this.app.fileManager.processFrontMatter(
-						view.file,
-						(frontmatter) => {
-							frontmatter["status"] = this.settings.statusName;
-							processedFrontmatter = frontmatter;
-						}
-					);
-
 					if (filename) {
 						const originalText = editor.getValue();
 
@@ -60,8 +52,15 @@ export default class ChatGptDefinitions extends Plugin {
 						)
 							? originalText.replace("Loading...", definition)
 							: originalText + definition;
-
 						editor.setValue(textWithDefinition);
+						this.app.fileManager.processFrontMatter(
+							view.file,
+							(frontmatter) => {
+								frontmatter["status"] =
+									this.settings.statusName;
+								processedFrontmatter = frontmatter;
+							}
+						);
 					}
 				}
 			},
